@@ -1,4 +1,32 @@
 #!/bin/sh
 build_dir=$1
+cache_dir=$2/php
+mkdir -p "$cache_dir"
+
+
+# all system packages live in there
+mkdir -p $build_dir/.heroku/php
+# set up Composer
+export COMPOSER_HOME=$cache_dir/.composer
+mkdir -p $COMPOSER_HOME
+# we need to run things in /app because of compiled paths, set that up!
+mkdir -p /app/.heroku
+# link the subdir only - we will leave it in place for potentially following buildpacks
+ln -s $build_dir/.heroku/php /app/.heroku/php
+
+STACK=${STACK:-cedar-14} 
+s3_url="https://lang-php.s3.amazonaws.com/dist-${STACK}-stable/"
+
+# minimal PHP needed for installs, and make "composer" invocations use that for now
+mkdir -p $build_dir/.heroku/php-min
+ln -s $build_dir/.heroku/php-min /app/.heroku/php-min
+curl --silent --location "${s3_url}php-min-7.0.4.tar.gz" | tar xz -C $build_dir/.heroku/php-min
+curl --silent --location "${s3_url}composer-1.0.0-beta1.tar.gz" | tar xz -C $build_dir/.heroku/php
+# this alias is just for now while we install platform packages
+composer() {
+    /app/.heroku/php-min/bin/php /app/.heroku/php/bin/composer "$@"
+}
+export -f composer
+
 cd $build_dir
 composer create-project --no-interaction
