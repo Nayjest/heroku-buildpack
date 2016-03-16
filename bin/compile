@@ -17,16 +17,13 @@ ln -s $build_dir/.heroku/php /app/.heroku/php
 STACK=${STACK:-cedar-14} 
 s3_url="https://lang-php.s3.amazonaws.com/dist-${STACK}-stable/"
 
-# minimal PHP needed for installs, and make "composer" invocations use that for now
+# minimal PHP needed for installs
 mkdir -p $build_dir/.heroku/php-min
 ln -s $build_dir/.heroku/php-min /app/.heroku/php-min
 curl --silent --location "${s3_url}php-min-7.0.4.tar.gz" | tar xz -C $build_dir/.heroku/php-min
-curl --silent --location "${s3_url}composer-1.0.0-beta1.tar.gz" | tar xz -C $build_dir/.heroku/php
-# this alias is just for now while we install platform packages
-composer() {
-    /app/.heroku/php-min/bin/php /app/.heroku/php/bin/composer "$@"
-}
-export -f composer
 
+wget https://getcomposer.org/download/1.0.0-beta1/composer.phar
 cd $build_dir
+php composer.phar create-project --no-interaction
+wget https://getcomposer.org/download/1.0.0-beta1/composer.phar
 composer create-project --no-interaction
