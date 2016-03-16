@@ -24,6 +24,4 @@ curl --silent --location "${s3_url}php-min-7.0.4.tar.gz" | tar xz -C $build_dir/
 
 wget https://getcomposer.org/download/1.0.0-beta1/composer.phar
 cd $build_dir
-php composer.phar create-project --no-interaction
-wget https://getcomposer.org/download/1.0.0-beta1/composer.phar
-composer create-project --no-interaction
+/app/.heroku/php-min/bin/php composer.phar create-project --no-interaction
